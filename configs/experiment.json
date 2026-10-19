@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "task": "risk",
+  "seed": 67,
+  "split_version": "group_v1",
+  "inner_folds": 3,
+  "hypothesis": "baseline risk chain with group split",
+  "inflow_model": {"kind": "hist_gradient_boosting", "params": {"max_iter": 80, "learning_rate": 0.08, "max_leaf_nodes": 15}},
+  "risk_model": {"kind": "logistic_regression", "params": {"C": 1.0, "max_iter": 300}}
+}

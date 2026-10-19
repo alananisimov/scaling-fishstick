@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Green Bank Pipeline CTF config contract",
+  "oneOf": [
+    {"$ref": "#/$defs/inflow_config"},
+    {"$ref": "#/$defs/risk_config"}
+  ],
+  "$defs": {
+    "model_inflow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "params"],
+      "properties": {
+        "kind": {"enum": ["hist_gradient_boosting", "ridge"]},
+        "params": {"type": "object"}
+      }
+    },
+    "model_risk": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "params"],
+      "properties": {
+        "kind": {"enum": ["logistic_regression"]},
+        "params": {"type": "object"}
+      }
+    },
+    "common": {
+      "type": "object",
+      "properties": {
+        "schema_version": {"const": 1},
+        "seed": {"type": "integer"},
+        "split_version": {"enum": ["random_v1", "group_v1"]},
+        "hypothesis": {"type": "string"}
+      },
+      "required": ["schema_version", "task", "seed", "split_version"]
+    },
+    "inflow_config": {
+      "allOf": [
+        {"$ref": "#/$defs/common"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["schema_version", "task", "seed", "split_version", "model"],
+          "properties": {
+            "schema_version": {"const": 1},
+            "task": {"const": "inflow"},
+            "seed": {"type": "integer"},
+            "split_version": {"enum": ["random_v1", "group_v1"]},
+            "hypothesis": {"type": "string"},
+            "model": {"$ref": "#/$defs/model_inflow"}
+          }
+        }
+      ]
+    },
+    "risk_config": {
+      "allOf": [
+        {"$ref": "#/$defs/common"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["schema_version", "task", "seed", "split_version", "inner_folds", "inflow_model", "risk_model"],
+          "properties": {
+            "schema_version": {"const": 1},
+            "task": {"const": "risk"},
+            "seed": {"type": "integer"},
+            "split_version": {"enum": ["random_v1", "group_v1"]},
+            "inner_folds": {"type": "integer", "minimum": 2},
+            "hypothesis": {"type": "string"},
+            "inflow_model": {"$ref": "#/$defs/model_inflow"},
+            "risk_model": {"$ref": "#/$defs/model_risk"}
+          }
+        }
+      ]
+    }
+  },
+  "supported_params": {
+    "hist_gradient_boosting": ["max_iter", "learning_rate", "max_leaf_nodes", "l2_regularization"],
+    "ridge": ["alpha"],
+    "logistic_regression": ["C", "max_iter"]
+  }
+}

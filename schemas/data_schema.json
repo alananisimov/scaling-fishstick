@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Green Bank Pipeline CTF data contract",
+  "schema_version": 1,
+  "files": {
+    "clients_train.csv": {
+      "required_columns": ["client_id", "branch_id", "snapshot_date", "account_age_days", "avg_inflow_30d", "avg_inflow_90d", "avg_outflow_30d", "avg_outflow_90d", "balance_mean_30d", "balance_std_30d", "txn_count_30d", "spend_food_share", "spend_transport_share", "spend_entertainment_share", "has_mobile_app", "region_code", "inflow_next_30d"],
+      "primary_key": ["client_id"],
+      "target": "inflow_next_30d"
+    },
+    "clients_test.csv": {
+      "required_columns": ["client_id", "branch_id", "snapshot_date", "account_age_days", "avg_inflow_30d", "avg_inflow_90d", "avg_outflow_30d", "avg_outflow_90d", "balance_mean_30d", "balance_std_30d", "txn_count_30d", "spend_food_share", "spend_transport_share", "spend_entertainment_share", "has_mobile_app", "region_code"],
+      "primary_key": ["client_id"]
+    },
+    "credit_train.csv": {
+      "required_columns": ["application_id", "client_id", "loan_amount", "loan_term_months", "monthly_payment", "past_due_count_12m", "credit_history_months", "debt_to_income_known", "overdue_next_60d"],
+      "primary_key": ["application_id"],
+      "foreign_key": {"client_id": "clients_train.csv.client_id"},
+      "target": "overdue_next_60d"
+    },
+    "credit_test.csv": {
+      "required_columns": ["application_id", "client_id", "loan_amount", "loan_term_months", "monthly_payment", "past_due_count_12m", "credit_history_months", "debt_to_income_known"],
+      "primary_key": ["application_id"],
+      "foreign_key": {"client_id": "clients_test.csv.client_id"}
+    },
+    "folds_random.csv": {"required_columns": ["client_id", "fold_id"], "primary_key": ["client_id"]},
+    "folds_group.csv": {"required_columns": ["client_id", "fold_id"], "primary_key": ["client_id"], "group_column": "branch_id"}
+  },
+  "rules": [
+    "client_id and application_id are keys, not numeric features",
+    "joins must use keys and never row order",
+    "all features are available at snapshot_date; future target columns are forbidden at inference",
+    "missing values are allowed for balance_std_30d and spend_entertainment_share"
+  ]
+}
